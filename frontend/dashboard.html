@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CareGrid | Real-Time Bed Management</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">CareGrid</div>
+    <div class="right">
+      <span id="live" class="live off">Connecting...</span>
+      <span id="who"></span>
+      <button id="logoutBtn">Log out</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="controls">
+      <select id="wardSelect" aria-label="Choose ward"></select>
+      <button id="refreshBtn">Refresh</button>
+    </div>
+
+    <div id="summary" class="summary"></div>
+
+    <div class="legend">
+      <span style="--c: var(--available)">Available</span>
+      <span style="--c: var(--occupied)">Occupied</span>
+      <span style="--c: var(--cleaning)">Cleaning</span>
+      <span style="--c: var(--reserved)">Reserved</span>
+    </div>
+
+    <div id="grid" class="grid"></div>
+  </main>
+
+  <div id="overlay" class="overlay">
+    <div class="modal">
+      <h2 id="modalTitle"></h2>
+      <p id="modalSub"></p>
+      <div id="options"></div>
+      <button id="cancelBtn" class="opt cancel">Cancel</button>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/socket.js"></script>
+</body>
+</html>

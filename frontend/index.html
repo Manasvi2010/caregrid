@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CareGrid | Login</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="card">
+      <h1>CareGrid</h1>
+      <p>Every bed, every ward, live on one grid.</p>
+
+      <label for="email">Email</label>
+      <input id="email" type="email" value="nurse@caregrid.com" autocomplete="username">
+
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password">
+
+      <button id="loginBtn" class="primary">Sign in</button>
+      <div id="error" class="error"></div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script>
+    const btn = document.getElementById("loginBtn");
+    const errorBox = document.getElementById("error");
+
+    async function doLogin() {
+      errorBox.textContent = "";
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      if (!email || !password) {
+        errorBox.textContent = "Please enter email and password.";
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = "Signing in...";
+      try {
+        const data = await api("/auth/login", {
+          method: "POST",
+          body: JSON.stringify({ email, password })
+        });
+        sessionStorage.setItem("token", data.access_token);
+        location.href = "/dashboard.html";
+      } catch (e) {
+        errorBox.textContent = e.message;
+        btn.disabled = false;
+        btn.textContent = "Sign in";
+      }
+    }
+
+    btn.addEventListener("click", doLogin);
+    document.getElementById("password").addEventListener("keydown", e => {
+      if (e.key === "Enter") doLogin();
+    });
+
+    if (getToken()) location.href = "/dashboard.html";
+  </script>
+</body>
+</html>
