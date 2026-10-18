@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: caregrid
+          POSTGRES_PASSWORD: caregrid
+          POSTGRES_DB: caregrid
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U caregrid -d caregrid"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://caregrid:caregrid@localhost:5432/caregrid
+      SECRET_KEY: ci-only-secret
+      PGPASSWORD: caregrid
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Create tables and seed data
+        run: |
+          psql -h localhost -U caregrid -d caregrid -f backend/sql/schema.sql
+          psql -h localhost -U caregrid -d caregrid -f backend/sql/seed.sql
+
+      - name: Create demo users
+        run: python -m backend.create_users
+
+      - name: Run tests
+        run: pytest -v

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CareGrid | Audit log</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">CareGrid</div>
+    <div class="right">
+      <a class="navlink" href="/dashboard.html">Dashboard</a>
+      <button id="logoutBtn">Log out</button>
+    </div>
+  </div>
+
+  <main>
+    <h1 class="page-title">Audit log</h1>
+
+    <div class="filters">
+      <div id="wardField">
+        <label for="fWard">Ward</label>
+        <select id="fWard"><option value="">All wards</option></select>
+      </div>
+      <div>
+        <label for="fUser">Changed by</label>
+        <select id="fUser"><option value="">Anyone</option></select>
+      </div>
+      <div>
+        <label for="fStatus">New status</label>
+        <select id="fStatus">
+          <option value="">Any</option>
+          <option value="available">Available</option>
+          <option value="occupied">Occupied</option>
+          <option value="cleaning">Cleaning</option>
+          <option value="reserved">Reserved</option>
+        </select>
+      </div>
+      <div>
+        <label for="fFrom">From</label>
+        <input id="fFrom" type="date">
+      </div>
+      <div>
+        <label for="fTo">To</label>
+        <input id="fTo" type="date">
+      </div>
+      <div class="filter-actions">
+        <button id="applyBtn" class="primary">Apply</button>
+        <button id="clearBtn" class="plain">Clear</button>
+      </div>
+    </div>
+
+    <div id="count" class="summary"></div>
+
+    <div class="table-wrap">
+      <table class="audit">
+        <thead>
+          <tr>
+            <th>Time</th><th>Ward</th><th>Bed</th><th>Change</th><th>Changed by</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+
+    <div class="pager">
+      <button id="prevBtn" class="plain">Previous</button>
+      <span id="pageInfo"></span>
+      <button id="nextBtn" class="plain">Next</button>
+    </div>
+  </main>
+
+  <div id="toast"></div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/audit.js"></script>
+</body>
+</html>

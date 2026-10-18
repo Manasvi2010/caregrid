@@ -11,15 +11,18 @@ function connectSocket() {
 
   ws.onopen = () => {
     setLive(true);
-    loadBeds(); // catch up on anything missed while disconnected
+    if (wardSelect.value) loadBeds(); // catch up on anything missed while disconnected
   };
 
   ws.onmessage = (e) => {
     const bed = JSON.parse(e.data);
-    if (String(bed.ward_id) !== wardSelect.value) return; // different ward on screen
-    const i = beds.findIndex(b => b.id === bed.id);
-    if (i !== -1) beds[i] = bed;
-    render();
+    if (String(bed.ward_id) === wardSelect.value) {
+      const i = beds.findIndex(b => b.id === bed.id);
+      if (i !== -1) beds[i] = bed;
+      render();
+    } else {
+      scheduleStats(); // another ward changed, so only the chart needs refreshing
+    }
   };
 
   ws.onclose = () => {

@@ -7,10 +7,11 @@ from backend.app.ws import manager
 
 router = APIRouter(tags=["beds"])
 
+# Occupying and freeing an occupied bed go through admissions
 ALLOWED = {
-    "available": {"occupied", "reserved", "cleaning"},
-    "reserved": {"occupied", "available"},
-    "occupied": {"cleaning"},
+    "available": {"reserved", "cleaning"},
+    "reserved": {"available"},
+    "occupied": set(),
     "cleaning": {"available"},
 }
 
@@ -30,17 +31,19 @@ def update_status(bed_id: int, body: StatusUpdate, user=Depends(current_user)):
         if not bed:
             raise HTTPException(404, "Bed not found")
 
-        # Rule 1: permissions (hospital_admin can edit any ward)
         if user["role"] != "hospital_admin" and bed["ward_id"] != user["ward"]:
             raise HTTPException(403, "You can only edit beds in your own ward")
 
-        # Rule 2: allowed status transitions
+        if body.status == "occupied":
+            raise HTTPException(400, "Use Admit patient to occupy a bed")
+        if bed["status"] == "occupied":
+            raise HTTPException(400, "Discharge the patient to free this bed")
+
         if body.status not in ALLOWED[bed["status"]]:
             raise HTTPException(
                 400, f"Cannot change from {bed['status']} to {body.status}"
             )
 
-        # Rule 3: optimistic locking (only updates if version still matches)
         row = conn.execute(
             "UPDATE beds SET status = %s, version = version + 1 "
             "WHERE id = %s AND version = %s "
@@ -50,13 +53,14 @@ def update_status(bed_id: int, body: StatusUpdate, user=Depends(current_user)):
         if not row:
             raise HTTPException(409, "Bed was changed by someone else. Refresh and try again")
 
-        # Rule 4: audit log (same transaction as the update)
         conn.execute(
             "INSERT INTO bed_events (bed_id, old_status, new_status, changed_by) "
             "VALUES (%s, %s, %s, %s)",
             (bed_id, bed["status"], body.status, int(user["sub"])),
         )
 
-    # Outside the with-block: runs only after the database commit
-    manager.broadcast_threadsafe(dict(row))
-    return row
+    result = dict(row)
+    result["patient_name"] = None
+    result["admission_id"] = None
+    manager.broadcast_threadsafe(result)
+    return result
