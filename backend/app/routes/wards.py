@@ -23,8 +23,12 @@ def list_beds(ward_id: int, user=Depends(current_user)):
         if not ward:
             raise HTTPException(404, "Ward not found")
         rows = conn.execute(
-            "SELECT id, ward_id, bed_number, status, version "
-            "FROM beds WHERE ward_id = %s ORDER BY id",
+            "SELECT b.id, b.ward_id, b.bed_number, b.status, b.version, "
+            "       p.name AS patient_name, a.id AS admission_id "
+            "FROM beds b "
+            "LEFT JOIN admissions a ON a.bed_id = b.id AND a.discharged_at IS NULL "
+            "LEFT JOIN patients p ON p.id = a.patient_id "
+            "WHERE b.ward_id = %s ORDER BY b.id",
             (ward_id,),
         ).fetchall()
     return rows

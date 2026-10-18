@@ -39,6 +39,28 @@
       <h2 id="modalTitle"></h2>
       <p id="modalSub"></p>
       <div id="options"></div>
+
+      <div id="admitForm" class="hidden">
+        <label for="pName">Patient name</label>
+        <input id="pName" type="text" maxlength="100">
+        <label for="pAge">Age</label>
+        <input id="pAge" type="number" min="0" max="120">
+        <label for="pGender">Gender</label>
+        <select id="pGender">
+          <option value="">Not specified</option>
+          <option>Female</option>
+          <option>Male</option>
+          <option>Other</option>
+        </select>
+        <button id="admitBtn" class="opt occupied" style="margin-top:12px">Admit patient</button>
+      </div>
+
+      <div id="transferForm" class="hidden">
+        <label for="targetBed">Move patient to</label>
+        <select id="targetBed"></select>
+        <button id="transferBtn" class="opt reserved" style="margin-top:12px">Transfer patient</button>
+      </div>
+
       <button id="cancelBtn" class="opt cancel">Cancel</button>
     </div>
   </div>
